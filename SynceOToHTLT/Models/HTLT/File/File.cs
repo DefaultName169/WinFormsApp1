@@ -13,6 +13,7 @@ namespace SynceOToHTLT.Models.HTLT.File
     public class Files : Audit
     {
         [JsonIgnore]
+        [Key]
         public long FileID { get; set; }
         public Guid ObjectGuid { get; set; }
         public string Title { get; set; }
@@ -25,15 +26,15 @@ namespace SynceOToHTLT.Models.HTLT.File
         public int PiecesOfPaper { get; set; }
         public int PageNumber { get; set; }
         public int TotalDoc { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public int Rights { get; set; }
         public string NationalAssembly { get; set; }
         public List<string> NationalAssemblys { get; set; }
         public int StorageTimeType { get; set; }
         public int? Maintenance { get; set; }
         public string PersonallyFiled { get; set; }
-        public DateTime DeliveryDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
         [JsonIgnore]
         public string OrganID { get; set; }
         public string FontName { get; set; }
@@ -71,12 +72,12 @@ namespace SynceOToHTLT.Models.HTLT.File
         /// Danh sách tài liệu ảnh (sử dụng cho nhận dữ liệu từ Egov)
         /// </summary>
         [JsonIgnore]
-        public List<PhotoSyncInput> Photos { get; set; }
+        public List<PhotoSyncInput>? Photos { get; set; }
         /// <summary>
         /// Danh sách tài liệu video (sử dụng cho nhận dữ liệu từ Egov)
         /// </summary>
         [JsonIgnore]
-        public List<FilmSyncInput> Films { get; set; }
+        public List<FilmSyncInput>? Films { get; set; }
         /// <summary>
         /// Insert or update file
         /// </summary>
@@ -186,7 +187,7 @@ namespace SynceOToHTLT.Models.HTLT.File
                 FontName,
                 FileTypeInGroup,
                 EgovID,
-                Documents = Documents.Select(s => new
+                Documents = Documents?.Select(s => new
                 {
                     s.EgovID,
                     FileID = 0,
@@ -226,7 +227,7 @@ namespace SynceOToHTLT.Models.HTLT.File
                     s.AgencyCreate,
                     s.CodeNumber
                 }).ToList().ToDataTableV2(),
-                Photos = Photos.Select(s => new
+                Photos = Photos?.Select(s => new
                 {
                     s.EgovID,
                     s.EventName,
@@ -263,7 +264,7 @@ namespace SynceOToHTLT.Models.HTLT.File
                     s.InforSign,
                     s.ImagePath
                 }).ToList().ToDataTableV2(),
-                Films = Films.Select(s => new
+                Films = Films?.Select(s => new
                 {
                     s.EgovID,
                     s.EventName,

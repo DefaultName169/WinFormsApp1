@@ -21,5 +21,8 @@ namespace SynceOToHTLT.Common
     {
         public string EOConnectionString { get; set; }
         public string HtltConnectionString { get; set; }
+        public string ConvertConnectionString { get; set; }
+        public string ConvertTab3ConnectionString { get; set; }
+
     }
 }

@@ -482,6 +482,7 @@ namespace SynceOToHTLT.Models.HTLT.Document
 
     public class DocumentSync
     {
+        [Key]
         public string DocCode { get; set; }
         public string FileNotation { get; set; }
         public string Field { get; set; }

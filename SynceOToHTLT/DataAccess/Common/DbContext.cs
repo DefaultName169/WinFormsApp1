@@ -184,7 +184,7 @@ namespace SynceOToHTLT.DataAccess.Common
         /// <returns></returns>
         public bool Update<T>(T obj, string connstr = null) where T : class
         {
-            return ExecuteCommand<bool>(connstr ?? _connStr, conn =>
+            return ExecuteCommandSqlServer<bool>(connstr ?? _connStr, conn =>
             {
                 return conn.Update<T>(obj);
             });
@@ -570,5 +570,15 @@ namespace SynceOToHTLT.DataAccess.Common
             return getTableNameMethod.Invoke(null, new object[] { typeof(T) }) as string;
         }
         #endregion
+
+        public IEnumerable<T> ExcuteStore<T>(string connStr, string storeName, object param)
+        {
+            using (var conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                return conn.Query<T>(storeName, param, commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }
