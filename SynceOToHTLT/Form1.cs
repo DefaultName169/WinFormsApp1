@@ -68,7 +68,16 @@ namespace SynceOToHTLT
         //
         private void btntab1_Click(object sender, EventArgs e)
         {
-            var rs = _service.GetListCongVan();
+            int count = 10;
+            var rs = _service.GetListCongVan(count);
+            progressBartab1.Maximum = count;
+            progressBartab1.Step = 1;
+            var num = rs.Current;
+            while (rs.MoveNext())
+            {
+                progressBartab1.PerformStep();
+            }
+
             MessageBox.Show("Chuyển dữ liệu thành công");
         }
 

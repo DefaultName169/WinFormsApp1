@@ -27,11 +27,11 @@ namespace SynceOToHTLT.Services
             _dbContext = new DbContext(Program.AppSettings.ConnectionSetting.EOConnectionString);
         }
 
-        public dynamic GetListCongVan()
+        public IEnumerator<dynamic> GetListCongVan(int count)
         {
             List<DocumentSyncInput> listdocument = new List<DocumentSyncInput>();
             DateTime? date = new DateTime();
-            var results = _dbContext.GetSQLServer<dynamic>("select top 10 * from cong_van_table");
+            var results = _dbContext.GetSQLServer<dynamic>("select top "+ count.ToString() +"* from cong_van_table");
             int i = 0;
             foreach (var result in results)
             {
@@ -56,7 +56,7 @@ namespace SynceOToHTLT.Services
                     Maintenance = 0,
                     CreateDate = result.ngay_cong_van,
                     CreateUser = 0,
-                    LastUpdate = (result.last_update != null) ? result.last_update : DateTime.Now,
+                    LastUpdate = /*(result.last_update != null) ? result.last_update :*/ DateTime.Now,
                     UpdateUser = 0,
                     NationalAssembly = 0,
                     Mode = 0,
@@ -73,6 +73,7 @@ namespace SynceOToHTLT.Services
                 };
                 i++;
                 listdocument.Add(document);
+                yield return i;
             }
 
             Files newfile = new Files()
@@ -88,7 +89,7 @@ namespace SynceOToHTLT.Services
                 PiecesOfPaper = 0,
                 PageNumber = 0,
                 TotalDoc = 0,
-                StartDate = new DateTime(2022, 06, 30, 04, 50, 41),
+                StartDate = DateTime.Now,
                 EndDate = new DateTime(2022, 06, 30, 04, 50, 42),
                 Rights = 1,
                 NationalAssemblys = new List<string>() { "1", "2" },
@@ -115,8 +116,7 @@ namespace SynceOToHTLT.Services
                 StorageLocationID = 0,
                 FileTypeInGroup = 0,
                 Documents = listdocument,
-                Photos =
-                new List<PhotoSyncInput>(){ new PhotoSyncInput {
+                Photos = new List<PhotoSyncInput>(){ new PhotoSyncInput {
                      EgovID= 7,
                      EventName= "Photo 7",
                      ImageTitle= "b",
@@ -153,8 +153,7 @@ namespace SynceOToHTLT.Services
                      ImagePath= "s"
                     }
                 },
-                Films =
-                new List<FilmSyncInput>() { new FilmSyncInput(){
+                Films = new List<FilmSyncInput>() { new FilmSyncInput(){
                     EgovID= 7,
                     EventName= "Fiml 7",
                     MovieTitle= "string",
@@ -183,14 +182,9 @@ namespace SynceOToHTLT.Services
                     FilmPath= "string"
                     }
                 }
-
             };
-            
-
             var bdm = new BSS.DBM(new System.Data.SqlClient.SqlConnection(Program.AppSettings.ConnectionSetting.HtltConnectionString));
             var msg2 = newfile.InsertOrUpdateFromEgov(bdm, out Files files, 1);
-
-            return default;
         }
 
         public IEnumerable<Files> UpdateFileServer(dynamic file)
