@@ -56,7 +56,7 @@ namespace SynceOToHTLT.Services
                     Maintenance = 0,
                     CreateDate = result.ngay_cong_van,
                     CreateUser = 0,
-                    LastUpdate = /*(result.last_update != null) ? result.last_update :*/ DateTime.Now,
+                    LastUpdate = (result.last_update != null) ? result.last_update : DateTime.Now,
                     UpdateUser = 0,
                     NationalAssembly = 0,
                     Mode = 0,

@@ -60,8 +60,7 @@ namespace SynceOToHTLT.Services
 
         public string setTableAndColumn(dynamic paneltab3)
         {
-            string str = "[" + this + "][" + this + "]"; 
-
+            string str = "[" + this.Controls[1] + "][" + this.Controls[2] + "]"; 
             return str;
         }
 

@@ -12,7 +12,7 @@ namespace SynceOToHTLT.Services
 {
     internal class ListShow : Panel
     {
-        public ListShow(string labelName, Point location, dynamic Tablehtlt) 
+        public ListShow(string labelName, Point location, dynamic Tablehtlt, Control showMore) 
         {
             Location = location;
             Width = 500;
@@ -32,10 +32,7 @@ namespace SynceOToHTLT.Services
                     Width = 200,
                     Height = 23,
                 },
-                new ShowMore(labelName, Tablehtlt)
-                {
-                    Parent = this
-                }
+                showMore
             }) ;
         }
     }

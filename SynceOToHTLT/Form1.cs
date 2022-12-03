@@ -19,6 +19,8 @@ namespace SynceOToHTLT
         private readonly DbContext _dbContextConvert;
         private readonly DbContext _dbContextConvertTab3;
         public string cbbtab3_eo_table_last;
+        ShowMore showMore;
+
         public Form1()
         {
             InitializeComponent();
@@ -29,6 +31,7 @@ namespace SynceOToHTLT
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            showMore = new ShowMore();
             var TableEO = _service._dbContext.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var TableConvertTab2 = _dbContextConvert.GetSQLServer<dynamic>("select * from Converted");
@@ -181,15 +184,13 @@ namespace SynceOToHTLT
         private void cbbtab3_eo_table_SelectedIndexChanged(object sender, EventArgs e)
         {
             uptoServer();
-            
             paneltab3.Controls.Clear();
             int i = 0;
             var ColumnEO = _service._dbContext.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + cbbtab3_eo_table.Text + "' ORDER BY COLUMN_NAME");
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             foreach (var columneo in ColumnEO)
             {
-                var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt);
-                downtoServer(columneo, i, Tablehtlt);
+                downtoServer(columneo, i, Tablehtlt, showMore);
                 i++;
             }
             cbbtab3_eo_table_last = cbbtab3_eo_table.Text;
@@ -241,9 +242,9 @@ namespace SynceOToHTLT
             }
         }
 
-        void downtoServer(dynamic columneo, int i, dynamic Tablehtlt)
+        void downtoServer(dynamic columneo, int i, dynamic Tablehtlt, ShowMore show)
         {
-            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt);
+            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, showMore); 
             paneltab3.Controls.Add(listshow);
 
             string key = cbbtab3_eo_table.Text + ":" + columneo.ToString();
