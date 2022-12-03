@@ -19,7 +19,7 @@ namespace SynceOToHTLT
         private readonly DbContext _dbContextConvert;
         private readonly DbContext _dbContextConvertTab3;
         public string cbbtab3_eo_table_last;
-        ShowMore showMore;
+        MenuStrip menuStrip;
 
         public Form1()
         {
@@ -31,7 +31,6 @@ namespace SynceOToHTLT
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            showMore = new ShowMore();
             var TableEO = _service._dbContext.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var TableConvertTab2 = _dbContextConvert.GetSQLServer<dynamic>("select * from Converted");
@@ -65,6 +64,38 @@ namespace SynceOToHTLT
             {
                 AddNewListViewItemTab2(item.Eoffice, item.htlt); 
             }
+
+            //_dbContextHTLT = new DbContext(Program.AppSettings.ConnectionSetting.HtltConnectionString);
+            menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
+            ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
+            //var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
+
+            foreach (var tablehtlt in Tablehtlt)
+            {
+                ToolStripMenuItem x = new ToolStripMenuItem();
+                var columnhtlt = _dbContextHTLT.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tablehtlt + "' ORDER BY COLUMN_NAME");
+                foreach (var item in columnhtlt)
+                {
+                    ToolStripMenuItem y = new ToolStripMenuItem()
+                    {
+                        Text = item.ToString(),
+                    };
+                    y.Click += toolScripMenuItem_Click;
+                    x.DropDownItems.Add(y);
+                }
+                x.Text = tablehtlt;
+                listToolStrip1.DropDownItems.Add(x);
+            }
+            menuStrip.Items.Add(listToolStrip1);
+        }
+
+        private void toolScripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripItem toolStrip = sender as ToolStripItem;
+            var str = "[" + toolStrip.OwnerItem.Text + "] : [" + toolStrip.Text + "]";
+            //this.Parent.Controls[1].Text = str;
+            this.Parent.Controls[1].Controls.Clear();
+            this.Parent.Controls[1].Controls.Add(new TextinListShow(toolStrip.OwnerItem.Text, toolStrip.Text)); ;
         }
         //
         //tab1
@@ -190,7 +221,7 @@ namespace SynceOToHTLT
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             foreach (var columneo in ColumnEO)
             {
-                downtoServer(columneo, i, Tablehtlt, showMore);
+                downtoServer(columneo, i, Tablehtlt);
                 i++;
             }
             cbbtab3_eo_table_last = cbbtab3_eo_table.Text;
@@ -242,9 +273,9 @@ namespace SynceOToHTLT
             }
         }
 
-        void downtoServer(dynamic columneo, int i, dynamic Tablehtlt, ShowMore show)
+        void downtoServer(dynamic columneo, int i, dynamic Tablehtlt)
         {
-            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, showMore); 
+            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, new ShowMore(menuStrip)); 
             paneltab3.Controls.Add(listshow);
 
             string key = cbbtab3_eo_table.Text + ":" + columneo.ToString();
