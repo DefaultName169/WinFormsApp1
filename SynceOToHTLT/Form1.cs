@@ -20,7 +20,7 @@ namespace SynceOToHTLT
         private readonly DbContext _dbContextConvertTab3;
         public string cbbtab3_eo_table_last;
         MenuStrip menuStrip;
-
+        Dictionary<string, List<string>> datalist;
         public Form1()
         {
             InitializeComponent();
@@ -31,6 +31,7 @@ namespace SynceOToHTLT
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            Dictionary<string, List<string>> datalist = new Dictionary<string, List<string>>();
             var TableEO = _service._dbContext.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var TableConvertTab2 = _dbContextConvert.GetSQLServer<dynamic>("select * from Converted");
@@ -66,27 +67,21 @@ namespace SynceOToHTLT
             }
 
             //_dbContextHTLT = new DbContext(Program.AppSettings.ConnectionSetting.HtltConnectionString);
-            menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
-            ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
+            //menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
+            //ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
             //var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
+            
 
             foreach (var tablehtlt in Tablehtlt)
             {
-                ToolStripMenuItem x = new ToolStripMenuItem();
+                List<string> newlist = new List<string>();
                 var columnhtlt = _dbContextHTLT.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tablehtlt + "' ORDER BY COLUMN_NAME");
                 foreach (var item in columnhtlt)
                 {
-                    ToolStripMenuItem y = new ToolStripMenuItem()
-                    {
-                        Text = item.ToString(),
-                    };
-                    y.Click += toolScripMenuItem_Click;
-                    x.DropDownItems.Add(y);
+                   newlist.Add(item.ToString());
                 }
-                x.Text = tablehtlt;
-                listToolStrip1.DropDownItems.Add(x);
+                datalist.Add(tablehtlt, newlist);
             }
-            menuStrip.Items.Add(listToolStrip1);
         }
 
         private void toolScripMenuItem_Click(object sender, EventArgs e)
@@ -275,7 +270,7 @@ namespace SynceOToHTLT
 
         void downtoServer(dynamic columneo, int i, dynamic Tablehtlt)
         {
-            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, new ShowMore(menuStrip)); 
+            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, datalist); 
             paneltab3.Controls.Add(listshow);
 
             string key = cbbtab3_eo_table.Text + ":" + columneo.ToString();

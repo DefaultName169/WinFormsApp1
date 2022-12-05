@@ -18,33 +18,34 @@ namespace SynceOToHTLT.Services
         private DbContext _dbContextHTLT;
         public string str = "";
         public string Name { get; set; }
-        public ShowMore(Control menuStrip)
+        public ShowMore(Dictionary<string, List<string>> datalist)
         {
+            if (datalist == null) { datalist = new Dictionary<string, List<string>>(); }
             Size = new Size(30, 26);
             Location = new Point(468, 2);
             BorderStyle = BorderStyle.FixedSingle;
             //_dbContextHTLT = new DbContext(Program.AppSettings.ConnectionSetting.HtltConnectionString);
-            //MenuStrip menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
-            //ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
+            MenuStrip menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
+            ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
             //var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
 
-            //foreach (var tablehtlt in Tablehtlt)
-            //{
-            //    ToolStripMenuItem x = new ToolStripMenuItem();
-            //    var columnhtlt = _dbContextHTLT.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tablehtlt + "' ORDER BY COLUMN_NAME");
-            //    foreach (var item in columnhtlt)
-            //    {
-            //        ToolStripMenuItem y = new ToolStripMenuItem()
-            //        {
-            //            Text = item.ToString(),
-            //        };
-            //        y.Click += toolScripMenuItem_Click;
-            //        x.DropDownItems.Add(y);
-            //    }
-            //    x.Text = tablehtlt;
-            //    listToolStrip1.DropDownItems.Add(x);
-            //}
-            //menuStrip.Items.Add(listToolStrip1);
+            foreach (var tablehtlt in datalist)
+            {
+                ToolStripMenuItem x = new ToolStripMenuItem();
+                //var columnhtlt = _dbContextHTLT.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tablehtlt + "' ORDER BY COLUMN_NAME");
+                foreach (var item in tablehtlt.Value)
+                {
+                    ToolStripMenuItem y = new ToolStripMenuItem()
+                    {
+                        Text = item.ToString(),
+                    };
+                    y.Click += toolScripMenuItem_Click;
+                    x.DropDownItems.Add(y);
+                }
+                x.Text = tablehtlt.Key;
+                listToolStrip1.DropDownItems.Add(x);
+            }
+            menuStrip.Items.Add(listToolStrip1);
             this.Controls.Add(menuStrip);
         }
 
