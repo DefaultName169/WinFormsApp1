@@ -1,19 +1,25 @@
 using BSS.DataValidator;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
+using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
 using SynceOToHTLT.DataAccess.Common;
 using SynceOToHTLT.Services;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace SynceOToHTLT
 {
     public partial class Form1 : Form
     {
+        public static Form1 ins;
         private readonly EOService _service;
         private readonly DbContext _dbContextHTLT;
         private readonly DbContext _dbContextConvert;
@@ -21,6 +27,8 @@ namespace SynceOToHTLT
         public string cbbtab3_eo_table_last;
         MenuStrip menuStrip;
         Dictionary<string, List<string>> datalist;
+        public Dictionary<string, string> ConverttableTab3, ConvertRam, Convert_this_select;
+        //List<datatable> datatables;
         public Form1()
         {
             InitializeComponent();
@@ -31,7 +39,8 @@ namespace SynceOToHTLT
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            Dictionary<string, List<string>> datalist = new Dictionary<string, List<string>>();
+            ConverttableTab3 = new Dictionary<string, string>();
+            datalist = new Dictionary<string, List<string>>();
             var TableEO = _service._dbContext.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
             var TableConvertTab2 = _dbContextConvert.GetSQLServer<dynamic>("select * from Converted");
@@ -51,6 +60,13 @@ namespace SynceOToHTLT
             foreach (var tableeo in TableEO) 
             {
                 newdataeo.Add(tableeo);
+                List<string> newlist = new List<string>();
+                dynamic columneo = _service._dbContext.GetSQLServer<dynamic>("SELECT name, system_type_id as [type] FROM sys.columns WHERE [object_id] = OBJECT_ID('dbo."+ tableeo + "', 'U')");
+                foreach(var item in columneo)
+                {
+                    newlist.Add(item.name.ToString().PadRight(30) + "(" + check_type_id(item.type) + ")");
+                }
+                datalist.Add(tableeo, newlist);
             }
 
             foreach (var tablehtlt in Tablehtlt)
@@ -58,7 +74,7 @@ namespace SynceOToHTLT
                 newdatahtlt.Add(tablehtlt);
             }
             cbbtab2_eo_table.DataSource = newdataeo;
-            cbbtab3_eo_table.DataSource = newdataeo;
+            cbbtab3_eo_table.DataSource = newdatahtlt;
             cbbtab2_htlt_table.DataSource = newdatahtlt;
             cbbtab3_eo_table_last = cbbtab3_eo_table.Text;
             foreach(dynamic item in TableConvertTab2)
@@ -66,32 +82,14 @@ namespace SynceOToHTLT
                 AddNewListViewItemTab2(item.Eoffice, item.htlt); 
             }
 
-            //_dbContextHTLT = new DbContext(Program.AppSettings.ConnectionSetting.HtltConnectionString);
-            //menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
-            //ToolStripMenuItem listToolStrip1 = new ToolStripMenuItem() { Text = "...", BackColor = Color.LightGray };
-            //var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
-            
-
-            foreach (var tablehtlt in Tablehtlt)
+            dynamic exists = _dbContextConvertTab3.GetSQLServer<dynamic>("SELECT * from [ConVert]");
+            foreach(var item in exists)
             {
-                List<string> newlist = new List<string>();
-                var columnhtlt = _dbContextHTLT.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tablehtlt + "' ORDER BY COLUMN_NAME");
-                foreach (var item in columnhtlt)
-                {
-                   newlist.Add(item.ToString());
-                }
-                datalist.Add(tablehtlt, newlist);
+                ConverttableTab3.Add(item.key, item.value);
             }
+            ConvertRam = ConverttableTab3;
         }
 
-        private void toolScripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToolStripItem toolStrip = sender as ToolStripItem;
-            var str = "[" + toolStrip.OwnerItem.Text + "] : [" + toolStrip.Text + "]";
-            //this.Parent.Controls[1].Text = str;
-            this.Parent.Controls[1].Controls.Clear();
-            this.Parent.Controls[1].Controls.Add(new TextinListShow(toolStrip.OwnerItem.Text, toolStrip.Text)); ;
-        }
         //
         //tab1
         //
@@ -209,89 +207,239 @@ namespace SynceOToHTLT
         //
         private void cbbtab3_eo_table_SelectedIndexChanged(object sender, EventArgs e)
         {
-            uptoServer();
+            savetoRam();
             paneltab3.Controls.Clear();
-            int i = 0;
-            var ColumnEO = _service._dbContext.GetSQLServer<string>("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + cbbtab3_eo_table.Text + "' ORDER BY COLUMN_NAME");
-            var Tablehtlt = _dbContextHTLT.GetSQLServer<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME");
-            foreach (var columneo in ColumnEO)
-            {
-                downtoServer(columneo, i, Tablehtlt);
-                i++;
-            }
+            downtoServer(datalist);
             cbbtab3_eo_table_last = cbbtab3_eo_table.Text;
         }
 
-        //void uptoServer(int something)
-        //{
-        //    for (int j = 0; j < paneltab3.Controls.Count; j++)
-        //    {
-        //        string key = cbbtab3_eo_table_last + ":" + paneltab3.Controls[j].Controls[0].Text;
-        //        int index = listsave.FindIndex(x => x.key == key);
-        //        if (index != -1)
-        //        {
-        //            listsave[index].value = (paneltab3.Controls[j].Controls[1].Controls.Count != 0) ? paneltab3.Controls[j].Controls[1].Controls[0] : paneltab3.Controls[j].Controls[1].Text;
-        //        }
-        //        else
-        //        {
-        //            var newsave = new save()
-        //            {
-        //                key = key,
-        //                value = (paneltab3.Controls[j].Controls[1].Controls.Count != 0) ? paneltab3.Controls[j].Controls[1].Controls[0] : paneltab3.Controls[j].Controls[1].Text
-        //            };
-        //            listsave.Add(newsave);
-        //        }
-        //    }
-        //}
 
-        void uptoServer()
+        void savetoRam()
         {
-            for (int j = 0; j < paneltab3.Controls.Count; j++)
+            bool is_true = true;
+            if (is_true)
             {
-                string key = cbbtab3_eo_table_last + ":" + paneltab3.Controls[j].Controls[0].Text;
-                string value = "";
-                if (paneltab3.Controls[j].Controls[1].Controls.Count != 0 || paneltab3.Controls[j].Controls[1].Text != "")
+                for (int j = 0; j < paneltab3.Controls.Count; j++)
                 {
-                    if (paneltab3.Controls[j].Controls[1].Controls.Count != 0)
+                    string key = cbbtab3_eo_table_last + ":" + paneltab3.Controls[j].Controls[0].Text;
+                    string value = "";
+                    dynamic option = paneltab3.Controls[j].Controls[1];
+                    value = option.get_value_selected();
+                    if (value != "")
                     {
-                        var selected = paneltab3.Controls[j].Controls[1].Controls[0];
-                        value = "[" + selected.Controls[0].Text + "][" + selected.Controls[2].Text + "]";
+                        if (ConvertRam.ContainsKey(key))
+                        {
+                            ConvertRam[key] = value;
+                        }
+                        else
+                        {
+                            ConvertRam.Add(key, value);
+                        }
+                    }
+                    //string sqlcommand = "if exists(SELECT * from [ConVert] where [key] = '" + key + "') BEGIN update [ConVert] set [value] = '" + value + "' where [key] = '" + key + "'End else BEGIN insert into [ConVert] values ('" + key + "','" + value + "') End ";
+                    //    _dbContextConvertTab3.GetSQLServer<string>(sqlcommand);
+                    //}
+                }
+            }
+        }
+
+        bool uptoServer()
+        {
+            List<Control> list_error = new List<Control>();
+            bool is_true = true;
+            errorProvider1.Clear();
+            if (is_true)
+            {
+                for (int i = 0; i < paneltab3.Controls.Count; i++)
+                {
+                    dynamic option = paneltab3.Controls[i].Controls[1];
+                    if (paneltab3.Controls[i].BackColor == Color.Pink && paneltab3.Controls[i].Enabled != false && option.get_value_selected() == "")
+                    {
+                        is_true = false;
+                        list_error.Add(paneltab3.Controls[i]);
+                        continue;
+                    }
+                    if (!is_true)
+                    {
+                        continue;
+                    }
+                    string key = cbbtab3_eo_table_last + ":" + paneltab3.Controls[i].Controls[0].Text;
+                    string value = "";
+                    value = option.get_value_selected();
+                    
+                    if (ConverttableTab3.ContainsKey(key))
+                    {
+                        if (value != "")
+                        {
+                            ConverttableTab3[key] = value;
+                        }
+                        else
+                        {
+                            ConverttableTab3.Remove(key);
+                        }
                     }
                     else
                     {
-                        value = paneltab3.Controls[j].Controls[1].Text;
+                        if (value != "")
+                        {
+                            ConverttableTab3.Add(key, value);
+                        }
                     }
-                    string sqlcommand = "if exists(SELECT * from [ConVert] where [key] = '" + key + "') BEGIN update [ConVert] set [value] = '" + value + "' where [key] = '" + key + "'End else BEGIN insert into [ConVert] values ('" + key + "','" + value + "') End ";
-                    _dbContextConvertTab3.GetSQLServer<string>(sqlcommand);
                 }
-               
             }
-        }
 
-        void downtoServer(dynamic columneo, int i, dynamic Tablehtlt)
-        {
-            var listshow = new ListShow(columneo, new Point(3, 5 + 33 * i), Tablehtlt, datalist); 
-            paneltab3.Controls.Add(listshow);
-
-            string key = cbbtab3_eo_table.Text + ":" + columneo.ToString();
-            string str = "SELECT [value] from [ConVert] where [key] = '" + key + "'";
-            dynamic exists = _dbContextConvertTab3.GetSQLServer<string>(str);
-            if (exists.Count != 0)
+            if (is_true)
             {
-                string exist = exists[0];
-                if (exist.StartsWith('[') && exist.EndsWith(']') && exist.IndexOf("][") != -1)
+                int i = 0;
+                string sqlcommand = "";
+                foreach (var item in ConverttableTab3)
                 {
-                    string[] arr = exist.Split(new Char[] { '[', ']' });
-                    listshow.Controls[1].Controls.Add(new TextinListShow(arr[1], arr[3]));
+                    if (i != 0) sqlcommand += ",";
+                    string str = "('" + item.Key + "','" + item.Value + "' )";
+                    sqlcommand += str;
+                    i++;
                 }
-                else
-                    listshow.Controls[1].Text = exist;
+                sqlcommand = "delete from [Convert]; insert into [Convert] values" + sqlcommand + ";";
+                var commit = _dbContextConvertTab3.GetSQLServer<dynamic>(sqlcommand);
+            }
+
+            else
+            {
+                for (int i = 0; i < list_error.Count; i++)
+                {
+                    errorProvider1.SetError(list_error[i].Controls[2], "Nhập cho đủ đi con zai!!!!");
+                }
+                is_true = false;
+            }
+            return is_true;
+        }
+
+        void downtoServer(dynamic datalist)
+        {
+            int i = 0;
+            var ColumnHTLT = _dbContextHTLT.GetSQLServer<dynamic>("SELECT name, is_nullable, is_identity, system_type_id as type FROM sys.columns WHERE [object_id] = OBJECT_ID('dbo." + cbbtab3_eo_table.Text + "', 'U')");
+            foreach (var columnhtlt in ColumnHTLT)
+            {
+                string value_convert_selected = "";
+                string key = cbbtab3_eo_table.Text + ":" + columnhtlt.name.ToString();
+                if (ConverttableTab3.ContainsKey(key))
+                {
+                    value_convert_selected = ConverttableTab3[key];
+                }
+                var listshow = new ListShow(columnhtlt, new Point(3, 5 + 33 * i), datalist, value_convert_selected); 
+                paneltab3.Controls.Add(listshow);
+                //string str = "SELECT [value] from [ConVert] where [key] = '" + key + "'";
+                //dynamic exists = _dbContextConvertTab3.GetSQLServer<string>(str);
+                
+                i++;
             }
         }
 
-        private void btntab3_OK_Click(object sender, EventArgs e)
+        private void btntab3_Save_Click(object sender, EventArgs e)
         {
             uptoServer();
         }
+
+        private void btntab3_Convert_Click(object sender, EventArgs e)
+        {
+            if (uptoServer())
+            {
+                Dictionary<string, Dictionary<string, string>> data = new Dictionary<string, Dictionary<string, string>>();
+                foreach (var item in ConverttableTab3)
+                {
+                    string key = item.Key;
+                    
+                    string[] arrkey = key.Split(':');
+                    if (data.ContainsKey(arrkey[0]))
+                    {
+                        data[arrkey[0]].Add(arrkey[1], item.Value);
+                    }
+                    else
+                    {
+                        data.Add(arrkey[0], new Dictionary<string, string>{ { arrkey[1], item.Value } });
+                    }
+                }
+                string str = "";
+                foreach(var table in data)
+                {
+                    string column = "";
+                    string value = "";
+                    int i = 0;
+                    foreach(var item in table.Value)
+                    {
+                        if(item.Value.StartsWith('[') && item.Value.EndsWith(']') && item.Value.IndexOf("][") != -1)
+                        {
+                            string[] arr = item.Value.Split(new Char[] { '[', ']' });
+                            dynamic kq = _service._dbContext.GetSQLServer<dynamic>("select "+ arr[3] + " from "+ arr[1]);
+                            foreach(var j in kq)
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            value += item.Value;
+                            column += item.Key;
+                            if(i != table.Value.Count - 1)
+                            {
+                                column += ", ";
+                                value += ", ";
+                            }
+                            i++;
+                        }
+                        
+                    }
+
+                    str = "insert into " + table.Key + "(" + column + ") values("+ value +")";
+                }
+                
+                //_dbContextConvertTab3.GetSQLServer<string>("");
+                //var item = _service._dbContext.GetSQLServer<string>("Select * from ");
+            }
+        }
+        public string check_type_id(dynamic str)
+        {
+            switch ((int)str)
+            {
+                case 36:
+                    {
+                        this.Enabled = false;
+                        return "guid";
+                        break;
+                    }
+                case 56:
+                    {
+                        return "int";
+                        break;
+                    }
+                case 61:
+                    {
+                        return "datetime";
+                        break;
+                    }
+                case 104:
+                    {
+                        return "bit";
+                        break;
+                    }
+                case 127:
+                    {
+                        return "int";
+                        break;
+                    }
+                case 167:
+                    {
+                        return "string";
+                        break;
+                    }
+                case 231:
+                    {
+                        return "string";
+                        break;
+                    }
+                default: return "none";
+            }
+        }
+
     }
 }

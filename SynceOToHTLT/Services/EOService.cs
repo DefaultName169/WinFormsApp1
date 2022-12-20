@@ -30,7 +30,6 @@ namespace SynceOToHTLT.Services
         public IEnumerator<dynamic> GetListCongVan(int count)
         {
             List<DocumentSyncInput> listdocument = new List<DocumentSyncInput>();
-            DateTime? date = new DateTime();
             var results = _dbContext.GetSQLServer<dynamic>("select top "+ count.ToString() +"* from cong_van_table");
             int i = 0;
             foreach (var result in results)

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btntab1 = new System.Windows.Forms.Button();
             this.progressBartab1 = new System.Windows.Forms.ProgressBar();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -44,19 +45,27 @@
             this.btntab2_Del = new System.Windows.Forms.Button();
             this.btntab2_Chuyen = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.btntab3_OK = new System.Windows.Forms.Button();
+            this.btntab3_Convert = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btntab3_Save = new System.Windows.Forms.Button();
             this.Control = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cbbtab3_eo_table = new System.Windows.Forms.ComboBox();
             this.paneltab3 = new System.Windows.Forms.Panel();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabControl1.SuspendLayout();
             this.tab1.SuspendLayout();
             this.tab2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.Control.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // btntab1
@@ -87,7 +96,7 @@
             this.tabControl1.Location = new System.Drawing.Point(1, 2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(740, 499);
+            this.tabControl1.Size = new System.Drawing.Size(841, 499);
             this.tabControl1.TabIndex = 2;
             // 
             // tab1
@@ -97,7 +106,7 @@
             this.tab1.Location = new System.Drawing.Point(4, 24);
             this.tab1.Name = "tab1";
             this.tab1.Padding = new System.Windows.Forms.Padding(3);
-            this.tab1.Size = new System.Drawing.Size(732, 471);
+            this.tab1.Size = new System.Drawing.Size(833, 471);
             this.tab1.TabIndex = 0;
             this.tab1.Text = "Autocomplete";
             this.tab1.UseVisualStyleBackColor = true;
@@ -113,7 +122,7 @@
             this.tab2.Location = new System.Drawing.Point(4, 24);
             this.tab2.Name = "tab2";
             this.tab2.Padding = new System.Windows.Forms.Padding(3);
-            this.tab2.Size = new System.Drawing.Size(732, 471);
+            this.tab2.Size = new System.Drawing.Size(833, 471);
             this.tab2.TabIndex = 1;
             this.tab2.Text = "Thiết lập";
             this.tab2.UseVisualStyleBackColor = true;
@@ -216,25 +225,74 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.btntab3_OK);
+            this.tabPage3.Controls.Add(this.btntab3_Convert);
+            this.tabPage3.Controls.Add(this.panel1);
+            this.tabPage3.Controls.Add(this.btntab3_Save);
             this.tabPage3.Controls.Add(this.Control);
             this.tabPage3.Location = new System.Drawing.Point(4, 24);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(0);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(732, 471);
+            this.tabPage3.Size = new System.Drawing.Size(833, 471);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "tabPage3";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // btntab3_OK
+            // btntab3_Convert
             // 
-            this.btntab3_OK.Location = new System.Drawing.Point(601, 14);
-            this.btntab3_OK.Name = "btntab3_OK";
-            this.btntab3_OK.Size = new System.Drawing.Size(96, 45);
-            this.btntab3_OK.TabIndex = 1;
-            this.btntab3_OK.Text = "OK";
-            this.btntab3_OK.UseVisualStyleBackColor = true;
-            this.btntab3_OK.Click += new System.EventHandler(this.btntab3_OK_Click);
+            this.btntab3_Convert.Location = new System.Drawing.Point(601, 182);
+            this.btntab3_Convert.Name = "btntab3_Convert";
+            this.btntab3_Convert.Size = new System.Drawing.Size(96, 45);
+            this.btntab3_Convert.TabIndex = 3;
+            this.btntab3_Convert.Text = "Chuyển";
+            this.btntab3_Convert.UseVisualStyleBackColor = true;
+            this.btntab3_Convert.Click += new System.EventHandler(this.btntab3_Convert_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.comboBox1);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Location = new System.Drawing.Point(568, 65);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(208, 44);
+            this.panel1.TabIndex = 2;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(76, 12);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(100, 23);
+            this.textBox1.TabIndex = 2;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "...",
+            "All"});
+            this.comboBox1.Location = new System.Drawing.Point(179, 12);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(18, 23);
+            this.comboBox1.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(10, 15);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(60, 15);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Số lượng :";
+            // 
+            // btntab3_Save
+            // 
+            this.btntab3_Save.Location = new System.Drawing.Point(601, 14);
+            this.btntab3_Save.Name = "btntab3_Save";
+            this.btntab3_Save.Size = new System.Drawing.Size(96, 45);
+            this.btntab3_Save.TabIndex = 1;
+            this.btntab3_Save.Text = "Lưu";
+            this.btntab3_Save.UseVisualStyleBackColor = true;
+            this.btntab3_Save.Click += new System.EventHandler(this.btntab3_Save_Click);
             // 
             // Control
             // 
@@ -242,7 +300,7 @@
             this.Control.Controls.Add(this.paneltab3);
             this.Control.Location = new System.Drawing.Point(8, 3);
             this.Control.Name = "Control";
-            this.Control.Size = new System.Drawing.Size(541, 444);
+            this.Control.Size = new System.Drawing.Size(554, 444);
             this.Control.TabIndex = 0;
             this.Control.TabStop = false;
             this.Control.Text = "Control";
@@ -255,7 +313,7 @@
             this.groupBox1.Size = new System.Drawing.Size(230, 45);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "eOffice";
+            this.groupBox1.Text = "HTLT";
             // 
             // cbbtab3_eo_table
             // 
@@ -272,14 +330,18 @@
             this.paneltab3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.paneltab3.Location = new System.Drawing.Point(9, 56);
             this.paneltab3.Name = "paneltab3";
-            this.paneltab3.Size = new System.Drawing.Size(526, 379);
+            this.paneltab3.Size = new System.Drawing.Size(539, 379);
             this.paneltab3.TabIndex = 0;
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(753, 501);
+            this.ClientSize = new System.Drawing.Size(854, 501);
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
             this.Text = "Main";
@@ -290,8 +352,11 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.Control.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -318,7 +383,13 @@
         private Panel paneltab3;
         private GroupBox groupBox1;
         private ComboBox cbbtab3_eo_table;
-        private Button btntab3_OK;
-
+        private Button btntab3_Save;
+        private ErrorProvider errorProvider1;
+        private Panel panel1;
+        private ComboBox comboBox1;
+        private Label label1;
+        private Button btntab3_Convert;
+        private TextBox textBox1;
+        private NumericUpDown numericUpDown1;
     }
 }
