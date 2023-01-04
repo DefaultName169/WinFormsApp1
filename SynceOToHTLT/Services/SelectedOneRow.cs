@@ -10,21 +10,22 @@ using Button = System.Windows.Forms.Button;
 
 namespace SynceOToHTLT.Services
 {
-    internal class SelectedListShow : Panel
+    internal class SelectedOneRow : Panel
     {
         public string type;
-        public SelectedListShow(string table, string column)
+        public SelectedOneRow(string table, string column)
         {
             string[] col = column.Split('(');
             col[0] = col[0].Replace(" ","");
-            Size = new Size(300,20);
+            Size = ListSize.ins.size_SelectedOneRow;
             BorderStyle = BorderStyle.FixedSingle;
+            Location = ListLocation.ins.Location_SelectedOneRow;
             Button x = new Button()
             {
                 Padding = new Padding(0, 0, 0, 0),
                 Margin = new Padding(0, 0, 0, 0),
                 Text = "x",
-                Location = new Point(211, 0),
+                Location = ListLocation.ins.Location_buttonx_in_SelectedOneRow,
                 Size = new Size(20, 20),
                 BackColor = Color.FromArgb(224, 224, 224)
             };
@@ -36,8 +37,8 @@ namespace SynceOToHTLT.Services
                     Padding = new Padding(0, 0, 0, 0),
                     Margin = new Padding(0, 0, 0, 0),
                     Text = table,
-                    Location = new Point(3, 2),
-                    Size = new Size(97, 15),
+                    Location = ListLocation.ins.Location_label1_in_SelectedOneRow,
+                    Size = ListSize.ins.size_label1_in_SelectedOneRow, 
                     BackColor = Color.FromArgb(224, 224, 224)
                 },
                 new Label()
@@ -45,8 +46,8 @@ namespace SynceOToHTLT.Services
                     Padding = new Padding(0, 0, 0, 0),
                     Margin = new Padding(0, 0, 0, 0),
                     Text = ":",
-                    Location = new Point(102, 2),
-                    Size = new Size(8, 15),
+                    Location = ListLocation.ins.Location_label2_in_SelectedOneRow, 
+                    Size = ListSize.ins.size_label2_in_SelectedOneRow,
                     BackColor = Color.FromArgb(224, 224, 224)
                 },
                 new Label()
@@ -54,8 +55,8 @@ namespace SynceOToHTLT.Services
                     Padding = new Padding(0, 0, 0, 0),
                     Margin = new Padding(0, 0, 0, 0),
                     Text = col[0],
-                    Location = new Point(112, 2),
-                    Size = new Size(97, 15),
+                    Location = ListLocation.ins.Location_label3_in_SelectedOneRow, 
+                    Size = ListSize.ins.size_label1_in_SelectedOneRow, 
                     BackColor = Color.FromArgb(224, 224, 224)
                 },
                 x
@@ -65,12 +66,8 @@ namespace SynceOToHTLT.Services
         public void xClick(object sender, EventArgs e)
         {
             dynamic control = this.Parent;
+            control.is_htlt = false;
             control.back_control();
-        }
-
-        public void set_value_selected()
-        {
-
         }
 
         public string get_value_selected()

@@ -18,13 +18,16 @@ namespace SynceOToHTLT.Services
 {
     public class ShowMore : Panel
     {
+        public bool is_htlt = false;
         private DbContext _dbContextHTLT;
         public string str = "";
         public string Name { get; set; }
+        public string table_selected;
+        public string column_selected;
+
         public ShowMore(Dictionary<string, List<string>> datalist)
         {
-            Size = new Size(30, 26);
-            Location = new Point(445, 0);
+            Size = ListSize.ins.size_ShowMore;
             BorderStyle = BorderStyle.FixedSingle;
             Margin = new Padding(0, 0, 0, 0);
             MenuStrip menuStrip = new MenuStrip() { Padding = new Padding(0, 0, 0, 0), Dock = DockStyle.Bottom };
@@ -51,57 +54,52 @@ namespace SynceOToHTLT.Services
 
         private void toolScripMenuItem_Click(object sender, EventArgs e)
         {
+            Form1.ins.save_panel_right();
             ToolStripItem toolStrip = sender as ToolStripItem;
             string type = "";
             string[] toolarr = toolStrip.Text.Split("(");
             string tooltext = toolarr[0].Replace(" ","");
-            string tooltype = toolarr[1].Replace(")", "");
-            if(this.Parent.GetType() == typeof(ListShow))
+            string tooltype = "";
+            table_selected = toolStrip.OwnerItem.Text;
+            column_selected = toolStrip.Text;
+            dynamic onerow = this.Parent;
+            dynamic option_onerow = this.Parent.Controls[1];
+
+            if (!is_htlt)
             {
-                dynamic opt = this.Parent;
-                type = opt.origin_type;
+                 tooltype = toolarr[1].Replace(")", "");
             }
+
+            if (this.Parent.GetType() == typeof(OneRow))
+            {
+                type = onerow.origin_type;            
+                if (is_htlt)
+                {
+                    this.Parent.Click += Form1.ins.onerow_Click;
+                    option_onerow.is_htlt = true;
+                    Form1.ins.showmore_htlt_Click(is_htlt, table_selected);
+                    str = "[" + table_selected + "] : [" + column_selected + "]";
+                    option_onerow.Controls.Clear();
+                    option_onerow.change_control("selected", str);
+                }
+            }
+
+
             if(tooltype == type)
             {
-                str = "[" + toolStrip.OwnerItem.Text + "] : [" + toolStrip.Text + "]";
+                str = "[" + table_selected + "] : [" + column_selected + "]";
                 this.Parent.Controls[1].Controls.Clear();
                 dynamic pa = this.Parent;
                 pa.Controls[1].change_control("selected",str);
             }
-            else
-            {
 
-            }
         }
 
-
-        public void is_check_datetime(string dateString)
+        public void onerow_Click(object sender, EventArgs e)
         {
-            string[] formats = {"M/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm tt",
-                   "MM/dd/yyyy hh:mm:ss", "M/d/yyyy h:mm:ss",
-                   "M/d/yyyy hh:mm tt", "M/d/yyyy hh tt",
-                   "M/d/yyyy h:mm", "M/d/yyyy h:mm",
-                   "MM/dd/yyyy hh:mm", "M/dd/yyyy hh:mm"};
-            //string[] dateStrings = {"5/1/2009 6:32 PM", "05/01/2009 6:32:05 PM",
-            //            "5/1/2009 6:32:00", "05/01/2009 06:32",
-            //            "05/01/2009 06:32:00 PM", "05/01/2009 06:32:00"};
-            DateTime dateValue;
-
-            //foreach (string dateString in dateStrings)
-            //{
-                if (DateTime.TryParseExact(dateString, formats,
-                                           new CultureInfo("en-US"),
-                                           DateTimeStyles.None,
-                                           out dateValue))
-                {
-                    Console.WriteLine("Converted '{0}' to {1}.", dateString, dateValue);
-                }
-
-                else
-                {
-                    Console.WriteLine("Unable to convert '{0}' to a date.", dateString);
-                }
-            //}
+            OneRow this_list = sender as OneRow;
+            //Form1.ins.showmore_htlt_Click(is_htlt, choose);
         }
+
     }
 }

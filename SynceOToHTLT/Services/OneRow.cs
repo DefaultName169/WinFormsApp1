@@ -10,11 +10,11 @@ using System.Xml.Linq;
 
 namespace SynceOToHTLT.Services
 {
-    internal class ListShow : Panel
+    internal class OneRow : Panel
     {
         public string origin_type;
         public string present_type;
-        public ListShow(dynamic columnhtlt, Point location, Dictionary<string, List<string>> datashowmore, string value_convert_selected) 
+        public OneRow(dynamic columnhtlt, Point location, Dictionary<string, List<string>> menustrip_eo, Dictionary<string, List<string>> menustrip_htlt, string value_convert_selected) 
         {
             origin_type = check_type_id(columnhtlt.type);
             if (value_convert_selected.StartsWith('[') && value_convert_selected.EndsWith(']') && value_convert_selected.IndexOf("][") != -1)
@@ -25,9 +25,9 @@ namespace SynceOToHTLT.Services
             { 
                 present_type = origin_type; 
             }
+
             Location = location;
-            Width = 500;
-            Height = 30;
+            Size = ListSize.ins.size_OneRow;
             Padding = new Padding(0, 0, 0, 0);
             if (!Convert.ToBoolean(columnhtlt.is_nullable) || check_type_id(columnhtlt.type) == "guid" )
             {
@@ -47,14 +47,17 @@ namespace SynceOToHTLT.Services
                     new Label()
                     {
                         Text = columnhtlt.name,
-                        Location = new Point(7, 7),
-                        Width = 195
+                        Location = new Point(7, 9),
+                        Width = 120
                     },
-                    new Option_ListShow(origin_type ,present_type,this, value_convert_selected),
-                    new ShowMore(datashowmore)
+                    new Option_OneRow(origin_type, present_type, value_convert_selected){ Location = ListLocation.ins.Location_Option_OneRow, Parent = this},
+                    new ShowMore(menustrip_eo) {Location = ListLocation.ins.Location_ShowMore1, is_htlt = false, Parent = this},
+                    new ShowMore(menustrip_htlt) {Location = new Point(555, 5), is_htlt = true, Parent = this}
                 }
             );
         }
+
+
 
         public string check_type_id(dynamic str)
         {
